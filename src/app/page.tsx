@@ -1,103 +1,208 @@
-import Image from "next/image";
+"use client";
+
+import { useState, useEffect } from "react";
+import Navbar from "../components/navbar";
+
+interface NewsItem {
+  _id?: string;
+  id: number;
+  title: string;
+  category: string;
+  details?: string;
+  time: string;
+  createdAt: string;
+}
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [news, setNews] = useState<NewsItem[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  // 🆕 Helper function to calculate time ago
+  const getTimeAgo = (createdAt: string) => {
+    const now = new Date();
+    const created = new Date(createdAt);
+    const diffMs = now.getTime() - created.getTime();
+    const diffMins = Math.floor(diffMs / (1000 * 60));
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffMins < 1) return "Just now";
+    if (diffMins < 60) return `${diffMins} min ago`;
+    if (diffHours < 24) return `${diffHours} hr ago`;
+    return `${diffDays} day${diffDays > 1 ? "s" : ""} ago`;
+  };
+
+  // 🆕 Load initial news and start SSE
+  useEffect(() => {
+    async function fetchNews() {
+      try {
+        const res = await fetch("/api/news?limit=8");
+        const data = await res.json();
+
+        if (data.success && Array.isArray(data.data)) {
+          const formattedNews = data.data.map((item: any) => ({
+            _id: item._id,
+            id: item.id,
+            title: item.title,
+            category: item.category,
+            details: item.details,
+            time: getTimeAgo(item.createdAt),
+            createdAt: item.createdAt,
+          }));
+          setNews(formattedNews);
+        }
+      } catch (err) {
+        console.error("Failed to fetch news:", err);
+      }
+    }
+
+    fetchNews();
+
+    // 🆕 Subscribe to SSE
+    const eventSource = new EventSource("/api/news/stream");
+
+    eventSource.onmessage = (event) => {
+      try {
+        const newItem: NewsItem = JSON.parse(event.data);
+        newItem.time = getTimeAgo(newItem.createdAt);
+
+        // Prepend the new item to news list
+        setNews((prev) => [newItem, ...prev].slice(0, 8));
+      } catch (err) {
+        console.error("Error parsing SSE message:", err);
+      }
+    };
+
+    eventSource.onerror = (err) => {
+      console.error("SSE connection error:", err);
+      eventSource.close();
+    };
+
+    return () => {
+      eventSource.close();
+    };
+  }, []);
+
+  // Auto-cycle ticker
+  useEffect(() => {
+    if (news.length === 0) return;
+
+    const interval = setInterval(() => {
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % news.length);
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [news.length]);
+
+  const getCategoryColor = (category: string) => {
+    const colors: { [key: string]: string } = {
+      Technology: "bg-blue-500",
+      Finance: "bg-green-500",
+      Environment: "bg-emerald-500",
+      Sports: "bg-orange-500",
+      Health: "bg-red-500",
+      Science: "bg-purple-500",
+      Local: "bg-yellow-500",
+      Education: "bg-indigo-500",
+    };
+    return colors[category] || "bg-gray-500";
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
+
+      <main className="container mx-auto px-4 py-12">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="text-5xl font-inter sm:text-7xl font-bold text-black mb-4 tracking-tight">
+            <span className="bg-gradient-to-r from-gray-600 to-black bg-clip-text text-transparent">
+              Live News Ticker
+            </span>
+          </h1>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            Stay updated with the latest breaking news from around the world in
+            real-time
+          </p>
         </div>
+
+        {/* Main Ticker */}
+        <div className="relative bg-white/30 backdrop-blur-md border border-gray-200 rounded-2xl p-8 mb-8 shadow-sm">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-3">
+              <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+              <span className="text-gray-800 font-semibold text-lg">LIVE</span>
+            </div>
+            <div className="text-gray-600 text-sm">
+              {news.length > 0 && `${currentIndex + 1} of ${news.length}`}
+            </div>
+          </div>
+
+          {news.length > 0 && (
+            <div className="space-y-4">
+              <div className="flex items-start space-x-4">
+                <span
+                  className={`px-3 py-1 text-xs font-semibold text-white rounded-full ${getCategoryColor(
+                    news[currentIndex].category
+                  )}`}
+                >
+                  {news[currentIndex].category.toUpperCase()}
+                </span>
+                <span className="text-gray-600 text-sm">
+                  {news[currentIndex].time}
+                </span>
+              </div>
+
+              <h2 className="text-2xl sm:text-3xl font-medium text-gray-900 leading-tight transition-all duration-500 ease-in-out">
+                {news[currentIndex].title}
+              </h2>
+            </div>
+          )}
+
+          {/* Progress Bar */}
+          <div className="mt-6 w-full bg-gray-300 rounded-full h-1">
+            <div
+              className="bg-gradient-to-r from-blue-500 to-purple-500 h-1 rounded-full transition-all duration-4000 ease-linear"
+              style={{
+                width:
+                  news.length > 0
+                    ? `${((currentIndex + 1) / news.length) * 100}%`
+                    : "0%",
+              }}
+            ></div>
+          </div>
+        </div>
+
+        {/* Grid of stories */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {news.slice(0, 6).map((item, index) => (
+            <div
+              key={item.id}
+              className={`bg-white/40 backdrop-blur-sm border border-gray-200 rounded-xl p-6 hover:bg-white/60 transition-all duration-300 cursor-pointer ${
+                index === currentIndex
+                  ? "ring-2 ring-blue-400 bg-white/60"
+                  : ""
+              }`}
+              onClick={() => setCurrentIndex(index)}
+            >
+              <div className="flex items-center justify-between mb-3">
+                <span
+                  className={`px-2 py-1 text-xs font-medium text-white rounded-full ${getCategoryColor(
+                    item.category
+                  )}`}
+                >
+                  {item.category}
+                </span>
+                <span className="text-gray-600 text-xs">{item.time}</span>
+              </div>
+              <h3 className="text-gray-900 font-medium text-sm leading-relaxed">
+                {item.title}
+              </h3>
+            </div>
+          ))}
+        </div>
+
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
     </div>
   );
 }
