@@ -18,7 +18,6 @@ export default function Home() {
   const [news, setNews] = useState<NewsItem[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // 🆕 Helper function to calculate time ago
   const getTimeAgo = (createdAt: string) => {
     const now = new Date();
     const created = new Date(createdAt);
@@ -33,7 +32,6 @@ export default function Home() {
     return `${diffDays} day${diffDays > 1 ? "s" : ""} ago`;
   };
 
-  // 🆕 Load initial news and start SSE
   useEffect(() => {
     async function fetchNews() {
       try {
@@ -59,15 +57,13 @@ export default function Home() {
 
     fetchNews();
 
-    // 🆕 Subscribe to SSE
     const eventSource = new EventSource("/api/news/stream");
 
     eventSource.onmessage = (event) => {
       try {
         const newItem: NewsItem = JSON.parse(event.data);
         newItem.time = getTimeAgo(newItem.createdAt);
-
-        // Prepend the new item to news list
+        setCurrentIndex(0);
         setNews((prev) => [newItem, ...prev].slice(0, 8));
       } catch (err) {
         console.error("Error parsing SSE message:", err);
