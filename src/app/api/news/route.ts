@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { MongoClient, Db, Collection, ObjectId } from "mongodb"
-import clientPromise from "@/lib/mongodb";
 
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017";
 const DB_NAME = "news_ticker";
@@ -81,8 +80,7 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get('category');
     const exclude = searchParams.get('exclude');
 
-    // Build query filter
-    let filter: any = {};
+    const filter: Record<string, unknown> = {};
     
     if (category) {
       filter.category = category;

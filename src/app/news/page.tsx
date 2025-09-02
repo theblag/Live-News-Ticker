@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/navbar";
 
-
 type NewsItem = {
     _id: string;
     id: number;
@@ -27,7 +26,7 @@ export default function AllNewsPage() {
                 const json = await res.json();
 
                 if (json.success && Array.isArray(json.data)) {
-                    const formatted = json.data.map((item: any) => ({
+                    const formatted = json.data.map((item: NewsItem) => ({
                         ...item,
                         _id: item._id.toString(),
                     }));

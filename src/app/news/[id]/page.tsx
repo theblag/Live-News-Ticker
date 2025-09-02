@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Navbar from "../../../components/navbar";
 
-
 interface NewsItem {
   _id: string;
   id: number;
@@ -160,7 +159,7 @@ export default function NewsDetailPage() {
                 {error || "News Not Found"}
               </h1>
               <p className="text-gray-600 mb-8">
-                The news article you're looking for doesn't exist or has been removed.
+                The news article you&apos;re looking for doesn&apos;t exist or has been removed.
               </p>
               <button
                 onClick={() => router.push("/")}

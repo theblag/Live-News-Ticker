@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import Navbar from "../components/navbar";
 
-
 interface NewsItem {
   _id?: string;
   id: number;
@@ -39,7 +38,7 @@ export default function Home() {
         const data = await res.json();
 
         if (data.success && Array.isArray(data.data)) {
-          const formattedNews = data.data.map((item: any) => ({
+          const formattedNews = data.data.map((item: NewsItem) => ({
             _id: item._id,
             id: item.id,
             title: item.title,

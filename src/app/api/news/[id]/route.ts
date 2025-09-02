@@ -29,19 +29,20 @@ interface NewsItem {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const resolvedParams = await params;
     const { collection } = await connectToDatabase();
     
     let newsItem;
     
-    if (ObjectId.isValid(params.id)) {
-      newsItem = await collection.findOne({ _id: new ObjectId(params.id) } as any);
+    if (ObjectId.isValid(resolvedParams.id)) {
+      newsItem = await collection.findOne({ _id: new ObjectId(resolvedParams.id) });
     }
     
     if (!newsItem) {
-      const customId = parseInt(params.id);
+      const customId = parseInt(resolvedParams.id);
       if (!isNaN(customId)) {
         newsItem = await collection.findOne({ id: customId });
       }
@@ -69,17 +70,18 @@ export async function GET(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const resolvedParams = await params;
     const { collection } = await connectToDatabase();
     
     let result;
     
-    if (ObjectId.isValid(params.id)) {
-      result = await collection.deleteOne({ _id: new ObjectId(params.id) } as any);
+    if (ObjectId.isValid(resolvedParams.id)) {
+      result = await collection.deleteOne({ _id: new ObjectId(resolvedParams.id) });
     } else {
-      const customId = parseInt(params.id);
+      const customId = parseInt(resolvedParams.id);
       if (!isNaN(customId)) {
         result = await collection.deleteOne({ id: customId });
       }
