@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Navbar from "../../../components/navbar";
 
+
 interface NewsItem {
   _id: string;
   id: number;
@@ -26,17 +27,17 @@ export default function NewsDetailPage() {
     async function fetchNewsDetail() {
       try {
         setIsLoading(true);
-        
+
         // Fetch the specific news item
         const res = await fetch(`/api/news/${params.id}`);
         if (!res.ok) {
           throw new Error("News not found");
         }
-        
+
         const data = await res.json();
         if (data.success) {
           setNews(data.data);
-          
+
           // Fetch related news (same category, excluding current item)
           const relatedRes = await fetch(`/api/news?category=${data.data.category}&exclude=${params.id}&limit=3`);
           if (relatedRes.ok) {
@@ -95,7 +96,22 @@ export default function NewsDetailPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-100">
-        <Navbar />
+        <div className="flex justify-center items-center mt-5 w-full">
+                <Navbar
+                items={[
+                    { label: 'Home', href: '/' },
+                    { label: 'All News', href: '/news' },
+                    { label: 'Add News', href: '/add' },
+                ]}
+                activeHref="/"
+                className="custom-nav"
+                ease="power2.easeOut"
+                baseColor="#000000"
+                pillColor="#ffffff"
+                hoveredPillTextColor="#ffffff"
+                pillTextColor="#000000"
+            />
+            </div>
         <div className="container mx-auto px-4 py-12">
           <div className="max-w-4xl mx-auto">
             {/* Loading skeleton */}
@@ -121,7 +137,22 @@ export default function NewsDetailPage() {
   if (error || !news) {
     return (
       <div className="min-h-screen bg-gray-100">
-        <Navbar />
+        <div className="flex justify-center items-center mt-5 w-full">
+                <Navbar
+                items={[
+                    { label: 'Home', href: '/' },
+                    { label: 'All News', href: '/news' },
+                    { label: 'Add News', href: '/add' },
+                ]}
+                activeHref="/"
+                className="custom-nav"
+                ease="power2.easeOut"
+                baseColor="#000000"
+                pillColor="#ffffff"
+                hoveredPillTextColor="#ffffff"
+                pillTextColor="#000000"
+            />
+            </div>
         <div className="container mx-auto px-4 py-12">
           <div className="max-w-4xl mx-auto text-center">
             <div className="bg-white/30 backdrop-blur-md border border-gray-200 rounded-2xl p-12 shadow-sm">
@@ -146,8 +177,23 @@ export default function NewsDetailPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
-      
+      <div className="flex justify-center items-center mt-5 w-full">
+                <Navbar
+                items={[
+                    { label: 'Home', href: '/' },
+                    { label: 'All News', href: '/news' },
+                    { label: 'Add News', href: '/add' },
+                ]}
+                activeHref="/"
+                className="custom-nav"
+                ease="power2.easeOut"
+                baseColor="#000000"
+                pillColor="#ffffff"
+                hoveredPillTextColor="#ffffff"
+                pillTextColor="#000000"
+            />
+            </div>
+
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto">
           {/* Back button */}
@@ -200,7 +246,7 @@ export default function NewsDetailPage() {
                     minute: '2-digit'
                   })}
                 </div>
-                
+
               </div>
             </div>
           </article>

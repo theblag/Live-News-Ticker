@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/navbar";
 
+
 type NewsItem = {
     _id: string;
     id: number;
@@ -45,7 +46,22 @@ export default function AllNewsPage() {
     if (loading) {
         return (
             <div className="min-h-screen bg-white">
-                <Navbar />
+                <div className="flex justify-center items-center mt-5 w-full">
+                    <Navbar
+                        items={[
+                            { label: 'Home', href: '/' },
+                            { label: 'All News', href: '/news' },
+                            { label: 'Add News', href: '/add' },
+                        ]}
+                        activeHref="/"
+                        className="custom-nav"
+                        ease="power2.easeOut"
+                        baseColor="#000000"
+                        pillColor="#ffffff"
+                        hoveredPillTextColor="#ffffff"
+                        pillTextColor="#000000"
+                    />
+                </div>
                 <main className="container mx-auto px-4 py-12">
                     <div className="text-center">
                         <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
@@ -58,7 +74,22 @@ export default function AllNewsPage() {
 
     return (
         <div className="min-h-screen bg-white">
-            <Navbar />
+            <div className="flex justify-center items-center mt-5 w-full">
+                <Navbar
+                    items={[
+                        { label: 'Home', href: '/' },
+                        { label: 'All News', href: '/news' },
+                        { label: 'Add News', href: '/add' },
+                    ]}
+                    activeHref="/"
+                    className="custom-nav"
+                    ease="power2.easeOut"
+                    baseColor="#000000"
+                    pillColor="#ffffff"
+                    hoveredPillTextColor="#ffffff"
+                    pillTextColor="#000000"
+                />
+            </div>
             <main className="container mx-auto px-24 py-12">
                 <div className="text-center mb-12">
                     <h1 className="text-5xl sm:text-6xl font-bold text-black mb-4 tracking-tight">

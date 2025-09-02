@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Navbar from "../components/navbar";
 
+
 interface NewsItem {
   _id?: string;
   id: number;
@@ -110,7 +111,22 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
+      <div className="flex justify-center items-center mt-5 w-full">
+        <Navbar
+          items={[
+            { label: 'Home', href: '/' },
+            { label: 'All News', href: '/news' },
+            { label: 'Add News', href: '/add' },
+          ]}
+          activeHref="/"
+          className="custom-nav"
+          ease="power2.easeOut"
+          baseColor="#000000"
+          pillColor="#ffffff"
+          hoveredPillTextColor="#ffffff"
+          pillTextColor="#000000"
+        />
+      </div>
 
       <main className="container mx-auto px-4 py-12">
         {/* Header */}
@@ -178,11 +194,10 @@ export default function Home() {
           {news.slice(0, 6).map((item, index) => (
             <div
               key={item.id}
-              className={`bg-white/40 backdrop-blur-sm border border-gray-200 rounded-xl p-6 hover:bg-white/60 transition-all duration-300 cursor-pointer ${
-                index === currentIndex
-                  ? "ring-2 ring-blue-400 bg-white/60"
-                  : ""
-              }`}
+              className={`bg-white/40 backdrop-blur-sm border border-gray-200 rounded-xl p-6 hover:bg-white/60 transition-all duration-300 cursor-pointer ${index === currentIndex
+                ? "ring-2 ring-blue-400 bg-white/60"
+                : ""
+                }`}
               onClick={() => setCurrentIndex(index)}
             >
               <div className="flex items-center justify-between mb-3">

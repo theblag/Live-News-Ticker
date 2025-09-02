@@ -32,38 +32,38 @@ export default function AddPage() {
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    
-    try {
-        const response = await fetch('/api/news', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                title: formData.title,
-                category: formData.category,
-                details: formData.details
-            })
-        });
+        e.preventDefault();
+        setIsSubmitting(true);
 
-        const result = await response.json();
+        try {
+            const response = await fetch('/api/news', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    title: formData.title,
+                    category: formData.category,
+                    details: formData.details
+                })
+            });
 
-        if (response.ok) {
-            setShowSuccess(true);
-            setFormData({ title: "", category: "Technology", details: "" });
-            setTimeout(() => setShowSuccess(false), 3000);
-        } else {
-            alert(`Error: ${result.error || 'Failed to publish news'}`);
+            const result = await response.json();
+
+            if (response.ok) {
+                setShowSuccess(true);
+                setFormData({ title: "", category: "Technology", details: "" });
+                setTimeout(() => setShowSuccess(false), 3000);
+            } else {
+                alert(`Error: ${result.error || 'Failed to publish news'}`);
+            }
+        } catch (error) {
+            console.error('Error publishing news:', error);
+            alert('Network error. Please try again.');
+        } finally {
+            setIsSubmitting(false);
         }
-    } catch (error) {
-        console.error('Error publishing news:', error);
-        alert('Network error. Please try again.');
-    } finally {
-        setIsSubmitting(false);
-    }
-};
+    };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         setFormData({
@@ -74,7 +74,22 @@ export default function AddPage() {
 
     return (
         <div className="min-h-screen bg-white">
-            <Navbar />
+            <div className="flex justify-center items-center mt-5 w-full">
+                <Navbar
+                items={[
+                    { label: 'Home', href: '/' },
+                    { label: 'All News', href: '/news' },
+                    { label: 'Add News', href: '/add' },
+                ]}
+                activeHref="/"
+                className="custom-nav"
+                ease="power2.easeOut"
+                baseColor="#000000"
+                pillColor="#ffffff"
+                hoveredPillTextColor="#ffffff"
+                pillTextColor="#000000"
+            />
+            </div>
 
             <main className="container mx-auto px-4 py-12 max-w-4xl">
                 <div className="text-center mb-12">
