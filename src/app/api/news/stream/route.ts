@@ -1,17 +1,11 @@
 import { NextRequest } from "next/server";
-import { MongoClient } from "mongodb";
+import clientPromise from "@/lib/mongodb";
 
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017";
 const DB_NAME = "news_ticker";
 const COLLECTION_NAME = "news";
 
-let client: MongoClient | null = null;
-
 async function connectToDatabase() {
-  if (!client) {
-    client = new MongoClient(MONGODB_URI);
-    await client.connect();
-  }
+  const client = await clientPromise;
   return client.db(DB_NAME).collection(COLLECTION_NAME);
 }
 export async function GET(req: NextRequest) {
